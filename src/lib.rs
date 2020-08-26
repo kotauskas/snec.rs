@@ -6,9 +6,9 @@
 //! While no built-in serialization support is provided, the architecture by itself is serialization-agnostic — using Serde and Snec for the same config table structure will work just fine.
 //!
 //! Snec's architecture consists of those key components:
-//! - **Config table** — the structure which contains the configuration data for the program. Config tables implement the [`Get`] trait to access its fields, which allows them to hand out [`Handle`]s to its fields. Handles ensure that the assigned receiver gets notified when the field changes, unless it's explicitly prompted to perform a silent modification.
-//! - **Entry** — an uninhabited type (type with no possible values) implementing the [`Entry`] trait, representing an identifier for a field inside of a config table.
-//! - **Receiver** — type implementing the [`Receiver`] trait which will receive notifications whenever a entry in a config table it's interested in is modified.
+//! - **Config table** — the structure which contains the configuration data for the program. Config tables implement the `Get` trait to access its fields, which allows them to hand out `Handle`s to its fields. Handles ensure that the assigned receiver gets notified when the field changes, unless it's explicitly prompted to perform a silent modification.
+//! - **Entry** — an uninhabited type (type with no possible values) implementing the `Entry` trait, representing an identifier for a field inside of a config table.
+//! - **Receiver** — type implementing the `Receiver` trait which will receive notifications whenever a entry in a config table it's interested in is modified.
 //!
 //! # Basic example
 //! ```
