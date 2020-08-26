@@ -3,6 +3,8 @@ name = "snec_macros"
 version = "0.1.0"
 authors = ["Kotauskas <v.toncharov@gmail.com>"]
 edition = "2018"
+license = "MIT OR Apache-2.0"
+documentation = "https://docs.rs/snec/0.1.0/snec"
 
 description = "Macros for the Snec crate, intended to be used via Snec's reexports"
 

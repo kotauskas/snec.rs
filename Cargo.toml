@@ -5,7 +5,7 @@ authors = ["Kotauskas <v.toncharov@gmail.com>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
-documentation = "docs.rs/snec/0.1.0/snec"
+documentation = "https://docs.rs/snec/0.1.0/snec"
 repository = "https://github.com/kotauskas/snec.rs"
 
 description = "Configuration system with compile-time field lookup and modification notifications"
