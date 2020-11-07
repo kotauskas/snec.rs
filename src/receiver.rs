@@ -19,8 +19,7 @@ use super::Entry;
 ///
 /// Several reference types and standard library types implement `Receiver`:
 /// - A mutable borrow of any type can be used as a receiver
-pub trait Receiver<E>
-where E: Entry {
+pub trait Receiver<E: Entry> {
     /// Receive a notification about the value of the entry changing to the specified new value.
     ///
     /// This method shouldn't be called manually — please use [`EntryStorage`] instead, which will automatically call this method. It's a logic error to invoke this without actually setting the value to something new in the storage.
@@ -33,18 +32,12 @@ where E: Entry {
 ///
 /// [receiver]: trait.Receiver.html " "
 #[allow(clippy::module_name_repetitions)]
-pub struct FnReceiver<E, F = Box<dyn FnMut(&<E as Entry>::Data)>>
-where
-    E: Entry,
-    F: FnMut(&E::Data) {
+pub struct FnReceiver<E: Entry, F: FnMut(&E::Data) = Box<dyn FnMut(&<E as Entry>::Data)>> {
     _phantom: PhantomData<E>,
     /// The closure which is called when the receiver is notified.
     pub closure: F,
 }
-impl<E, F> FnReceiver<E, F>
-where
-    E: Entry,
-    F: FnMut(&E::Data) {
+impl<E: Entry, F: FnMut(&E::Data)> FnReceiver<E, F> {
     /// Creates a new receiver from the specified closure.
     // FIXME make it a const fn when non-Sized bounds in const fn arguments get stabilized
     #[inline(always)]
@@ -52,52 +45,35 @@ where
         Self {closure, _phantom: PhantomData}
     }
 }
-impl<E, F> Receiver<E> for FnReceiver<E, F>
-where
-    E: Entry,
-    F: FnMut(&E::Data) {
+impl<E: Entry, F: FnMut(&E::Data)> Receiver<E> for FnReceiver<E, F> {
     #[inline(always)]
     fn receive(&mut self, new_value: &E::Data) {
         (self.closure)(new_value)
     }
 }
-impl<E, F> Receiver<E> for &FnReceiver<E, F>
-where
-    E: Entry,
-    F: Fn(&E::Data) {
+impl<E: Entry, F: Fn(&E::Data)> Receiver<E> for &FnReceiver<E, F> {
     #[inline(always)]
     fn receive(&mut self, new_value: &E::Data) {
         (self.closure)(new_value)
     }
 }
-impl<E, F> Clone for FnReceiver<E, F>
-where
-    E: Entry,
-    F: Fn(&E::Data) + Clone {
+impl<E: Entry, F: FnMut(&E::Data) + Clone> Clone for FnReceiver<E, F> {
     #[inline(always)]
     fn clone(&self) -> Self {
         Self {closure: self.closure.clone(), _phantom: PhantomData}
     }
 }
-impl<E, F> Copy for FnReceiver<E, F>
-where
-    E: Entry,
-    F: Fn(&E::Data) + Copy {}
+impl<E: Entry, F: FnMut(&E::Data) + Copy> Copy for FnReceiver<E, F>
+{}
 
-impl<E, F> Default for FnReceiver<E, F>
-where
-    E: Entry,
-    F: Fn(&E::Data) + Default {
+impl<E: Entry, F: FnMut(&E::Data) + Default> Default for FnReceiver<E, F> {
     #[inline(always)]
     fn default() -> Self {
         Self {closure: F::default(), _phantom: PhantomData}
     }
 }
 
-impl<E, F> Debug for FnReceiver<E, F>
-where
-    E: Entry,
-    F: Fn(&E::Data) + Debug {
+impl<E: Entry, F: FnMut(&E::Data) + Debug> Debug for FnReceiver<E, F> {
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("FnReceiver")
@@ -110,18 +86,16 @@ where
 ///
 /// [receiver]: trait.Receiver.html " "
 #[allow(clippy::module_name_repetitions)]
-pub struct IterReceiver<E, I>
+pub struct IterReceiver<E: Entry, I>
 where
-    E: Entry,
     for<'a> &'a mut I: IntoIterator,
     for<'a> <&'a mut I as IntoIterator>::Item: Receiver<E> {
     /// The iterable which produces iterators over the receivers.
     pub iter: I,
     _phantom: PhantomData<E>,
 }
-impl<E, I> Receiver<E> for IterReceiver<E, I>
+impl<E: Entry, I> Receiver<E> for IterReceiver<E, I>
 where
-    E: Entry,
     for<'a> &'a mut I: IntoIterator,
     for<'a> <&'a mut I as IntoIterator>::Item: Receiver<E> {
     #[inline]
@@ -131,9 +105,8 @@ where
         }
     }
 }
-impl<E, I> Receiver<E> for &IterReceiver<E, I>
+impl<E: Entry, I> Receiver<E> for &IterReceiver<E, I>
 where
-    E: Entry,
     for<'a> &'a mut I: IntoIterator,
     for<'a> &'a I: IntoIterator,
     for<'a> <&'a mut I as IntoIterator>::Item: Receiver<E>,
@@ -145,9 +118,8 @@ where
         }
     }
 }
-impl<E, I> IterReceiver<E, I>
+impl<E: Entry, I> IterReceiver<E, I>
 where
-    E: Entry,
     for<'a> &'a mut I: IntoIterator,
     for<'a> <&'a mut I as IntoIterator>::Item: Receiver<E> {
     /// Creates a new receiver which notifies the specified iterable of receivers.
@@ -157,10 +129,8 @@ where
         Self {iter, _phantom: PhantomData}
     }
 }
-impl<E, I> Clone for IterReceiver<E, I>
+impl<E: Entry, I: Clone> Clone for IterReceiver<E, I>
 where
-    E: Entry,
-    I: Clone,
     for<'a> &'a mut I: IntoIterator,
     for<'a> <&'a mut I as IntoIterator>::Item: Receiver<E> {
     #[inline(always)]
@@ -168,17 +138,13 @@ where
         Self {iter: self.iter.clone(), _phantom: PhantomData}
     }
 }
-impl<E, I> Copy for IterReceiver<E, I>
+impl<E: Entry, I: Copy> Copy for IterReceiver<E, I>
 where
-    E: Entry,
-    I: Copy,
     for<'a> &'a mut I: IntoIterator,
     for<'a> <&'a mut I as IntoIterator>::Item: Receiver<E> {}
 
-impl<E, I> Default for IterReceiver<E, I>
+impl<E: Entry, I: Default> Default for IterReceiver<E, I>
 where
-    E: Entry,
-    I: Default,
     for<'a> &'a mut I: IntoIterator,
     for<'a> <&'a mut I as IntoIterator>::Item: Receiver<E> {
     #[inline(always)]
@@ -187,10 +153,8 @@ where
     }
 }
 
-impl<E, I> Debug for IterReceiver<E, I>
+impl<E: Entry, I: Debug> Debug for IterReceiver<E, I>
 where
-    E: Entry,
-    I: Debug,
     for<'a> &'a mut I: IntoIterator,
     for<'a> <&'a mut I as IntoIterator>::Item: Receiver<E> {
     #[inline]
@@ -213,13 +177,11 @@ impl EmptyReceiver {
     #[inline(always)]
     pub const fn new() -> Self { EmptyReceiver }
 }
-impl<E> Receiver<E> for EmptyReceiver
-where E: Entry {
+impl<E: Entry> Receiver<E> for EmptyReceiver {
     #[inline(always)]
     fn receive(&mut self, _: &E::Data) {}
 }
-impl<E> Receiver<E> for &EmptyReceiver
-where E: Entry {
+impl<E: Entry> Receiver<E> for &EmptyReceiver {
     #[inline(always)]
     fn receive(&mut self, _: &E::Data) {}
 }

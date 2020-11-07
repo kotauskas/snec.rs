@@ -27,8 +27,7 @@ pub trait Entry: Sized {
 ///
 /// # Collisions with `GetExt`
 /// Since the [`GetExt`] trait uses the same method names as `Get`, bringing both into scope will require disambiguation and thus will defeat the point of `GetExt`, which is to make turbofish syntax usage possible. For that reason, avoid bringing `Get` into scope and instead use a fully qualified `snec::Get`.
-pub trait Get<E>
-where E: Entry {
+pub trait Get<E: Entry> {
     /// The [receiver] which will be notified when modifications are performed via the handle.
     ///
     /// [receiver]: trait.Receiver.html " "
@@ -62,20 +61,16 @@ where E: Entry {
 pub trait GetExt {
     /// Returns an unguarded immutable reference to the field.
     #[inline(always)]
-    fn get_ref<E>(&self) -> &E::Data
-    where
-        E: Entry,
-        Self: Get<E> {
+    fn get_ref<E: Entry>(&self) -> &E::Data
+    where Self: Get<E> {
         <Self as Get<E>>::get_ref(self)
     }
     /// Returns a [`Handle`] to the field.
     ///
     /// [`Handle`]: struct.Handle.html " "
     #[inline(always)]
-    fn get_handle<E>(&mut self) -> Handle<'_, E, <Self as Get<E>>::Receiver>
-    where
-        E: Entry,
-        Self: Get<E> {
+    fn get_handle<E: Entry>(&mut self) -> Handle<'_, E, <Self as Get<E>>::Receiver>
+    where Self: Get<E> {
         <Self as Get<E>>::get_handle(self)
     }
 }
