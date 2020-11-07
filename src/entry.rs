@@ -24,9 +24,6 @@ pub trait Entry: Sized {
 /// Trait for getting handles to fields in config tables.
 ///
 /// This trait is implemented by config tables for every `E` which is a field inside the table.
-///
-/// # Collisions with `GetExt`
-/// Since the [`GetExt`] trait uses the same method names as `Get`, bringing both into scope will require disambiguation and thus will defeat the point of `GetExt`, which is to make turbofish syntax usage possible. For that reason, avoid bringing `Get` into scope and instead use a fully qualified `snec::Get`.
 pub trait Get<E: Entry> {
     /// The [receiver] which will be notified when modifications are performed via the handle.
     ///
@@ -55,13 +52,13 @@ pub trait Get<E: Entry> {
 /// // Using the Get trait directly:
 /// let handle = <MyConfigTable as snec::Get<entries::MyEntry>>::get_handle(&mut table);
 /// // Using the GetExt trait:
-/// let handle = table.get_handle::<entries::MyEntry>();
+/// let handle = table.get_handle_to::<entries::MyEntry>();
 /// ```
 /// [`Get`]: trait.Get.html " "
 pub trait GetExt {
     /// Returns an unguarded immutable reference to the field.
     #[inline(always)]
-    fn get_ref<E: Entry>(&self) -> &E::Data
+    fn get_ref_to<E: Entry>(&self) -> &E::Data
     where Self: Get<E> {
         <Self as Get<E>>::get_ref(self)
     }
@@ -69,7 +66,7 @@ pub trait GetExt {
     ///
     /// [`Handle`]: struct.Handle.html " "
     #[inline(always)]
-    fn get_handle<E: Entry>(&mut self) -> Handle<'_, E, <Self as Get<E>>::Receiver>
+    fn get_handle_to<E: Entry>(&mut self) -> Handle<'_, E, <Self as Get<E>>::Receiver>
     where Self: Get<E> {
         <Self as Get<E>>::get_handle(self)
     }
