@@ -1,10 +1,10 @@
 [package]
 name = "snec_macros"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Kotauskas <v.toncharov@gmail.com>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
-documentation = "https://docs.rs/snec/0.1.0/snec"
+documentation = "https://docs.rs/snec/*/snec"
 
 description = "Macros for the Snec crate, intended to be used via Snec's reexports"
 
@@ -14,8 +14,6 @@ proc-macro = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-syn = "1.0"
+syn = {version = "1.0", features = ["extra-traits"]}
 quote = "1.0"
-fehler = "1.0"
 proc-macro2 = "1.0"
-smallvec = "1.4"

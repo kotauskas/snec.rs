@@ -56,25 +56,20 @@
 //! use snec::{ConfigTable, Receiver, Entry, GetExt as _};
 //! use std::time::{SystemTime, Duration};
 //! #[derive(ConfigTable)]
-//! #[snec(receiver = "MyReceiver::new -> MyReceiver")]
+//! #[snec(
+//!     // Any expression can be used in the braces. After the colon, the type is supplied.
+//!     receiver({MyReceiver}: MyReceiver)
+//! )]
 //! struct MyConfigTable {
 //!     #[snec]
 //!     which_year: i64,
-//!     #[snec(entry("snec::EmptyReceiver::new -> snec::EmptyReceiver"))]
+//!     #[snec(entry, receiver({snec::EmptyReceiver}: snec::EmptyReceiver))]
 //!     why: String,
 //!     #[snec]
 //!     random_integer_that_i_like: u128,
 //! }
 //!
 //! struct MyReceiver;
-//! impl MyReceiver {
-//!     fn new() -> Self {
-//!         // Since the #[derive(ConfigTable)] can only call functions (no arguments, return
-//!         // value implements Receiver) to get a receiver, we have to do this. In a future
-//!         // version, in-place closures might become supported.
-//!         MyReceiver
-//!     }
-//! }
 //! impl Receiver<entries::RandomIntegerThatILike> for MyReceiver {
 //!     fn receive(&mut self, new_value: &u128) {
 //!         println!("My integer has been changed to {}!!", new_value)

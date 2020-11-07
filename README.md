@@ -28,7 +28,6 @@ struct MyConfigTable {
     #[snec]
     in_which_country: String,
 }
-
 let mut config_table = MyConfigTable {
     when: SystemTime::UNIX_EPOCH + Duration::from_secs(566_200_800),
     who: "Jeremy".to_string(),
@@ -40,7 +39,7 @@ let mut config_table = MyConfigTable {
 // to reexport the contents of the module in a public module with a different name and
 // some documentation, or simply in the containing module if you want the entry
 // identifiers to be in the same module as the config table.
-let mut handle = config_table.get_handle::<entries::InWhichCountry>();
+let mut handle = config_table.get_handle_to::<entries::InWhichCountry>();
 // After we got the handle, we can use it to get a
 // mutable reference to the field and modify it:
 {
@@ -61,25 +60,20 @@ Using receivers:
 use snec::{ConfigTable, Receiver, Entry, GetExt as _};
 use std::time::{SystemTime, Duration};
 #[derive(ConfigTable)]
-#[snec(receiver = "MyReceiver::new -> MyReceiver")]
+#[snec(
+    // Any expression can be used in the braces. After the colon, the type is supplied.
+    receiver({MyReceiver}: MyReceiver)
+)]
 struct MyConfigTable {
     #[snec]
     which_year: i64,
-    #[snec(entry("snec::EmptyReceiver::new -> snec::EmptyReceiver"))]
+    #[snec(entry, receiver({snec::EmptyReceiver}: snec::EmptyReceiver))]
     why: String,
     #[snec]
     random_integer_that_i_like: u128,
 }
 
 struct MyReceiver;
-impl MyReceiver {
-    fn new() -> Self {
-        // Since the #[derive(ConfigTable)] can only call functions (no arguments, return
-        // value implements Receiver) to get a receiver, we have to do this. In a future
-        // version, in-place closures might become supported.
-        MyReceiver
-    }
-}
 impl Receiver<entries::RandomIntegerThatILike> for MyReceiver {
     fn receive(&mut self, new_value: &u128) {
         println!("My integer has been changed to {}!!", new_value)
@@ -97,7 +91,7 @@ let mut config_table = MyConfigTable {
     random_integer_that_i_like: 687_800,
 };
 // Now we have receivers which will immediately react to any changes in the values:
-let mut handle = config_table.get_handle::<entries::WhichYear>();
+let mut handle = config_table.get_handle_to::<entries::WhichYear>();
 {
     let mut which_year = handle.modify();
     *which_year = 1983;

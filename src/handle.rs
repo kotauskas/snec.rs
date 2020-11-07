@@ -8,18 +8,12 @@ use super::{Entry, Receiver};
 /// A handle to a config entry value which is being watched by a receiver.
 ///
 /// Such handles not only have the semantics of managing a value for a specific field, they also automatically notify the receiver whenever the value changes.
-pub struct Handle<'a, E, R>
-where
-    E: Entry,
-    R: Receiver<E> {
+pub struct Handle<'a, E: Entry, R: Receiver<E>> {
     target: &'a mut E::Data,
     receiver: R,
     _phantom: PhantomData<E>,
 }
-impl<'a, E, R> Handle<'a, E, R>
-where
-    E: Entry,
-    R: Receiver<E> {
+impl<'a, E: Entry, R: Receiver<E>> Handle<'a, E, R> {
     /// Creates a handle pointing to the specified value and with the specified receiver.
     // FIXME make it a const fn when non-Sized bounds in const fn arguments get stabilized
     #[inline(always)]

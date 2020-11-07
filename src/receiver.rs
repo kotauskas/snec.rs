@@ -170,13 +170,6 @@ where
 /// [receiver]: trait.Receiver.html " "
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
 pub struct EmptyReceiver;
-impl EmptyReceiver {
-    /// Creates an empty receiver.
-    ///
-    /// Primarily intended to be used with `#[derive(ConfigTable)]`, which only accepts functions as a way of constructing a receiver.
-    #[inline(always)]
-    pub const fn new() -> Self { EmptyReceiver }
-}
 impl<E: Entry> Receiver<E> for EmptyReceiver {
     #[inline(always)]
     fn receive(&mut self, _: &E::Data) {}
