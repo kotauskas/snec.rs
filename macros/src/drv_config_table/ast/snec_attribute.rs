@@ -1,7 +1,6 @@
 use std::convert::TryFrom;
 use syn::{
     Ident,
-    Expr,
     Path,
     Type,
     Visibility,
@@ -15,7 +14,7 @@ use syn::{
     spanned::Spanned,
     parse::{Parse, ParseStream},
 };
-use proc_macro2::Span;
+use proc_macro2::{TokenStream, Span};
 
 pub struct SnecAttribute {
     pub pound: Token![#],
@@ -189,7 +188,7 @@ pub enum AttributeCommand {
         parentheses: token::Paren,
         braces: token::Brace,
         /// Expression fetching a receiver to be pasted in the `get_handle` implementation.
-        expression: Expr,
+        expression: TokenStream,
         colon: Token![:],
         /// The type of the expression
         ty: Type,
@@ -245,17 +244,13 @@ impl Parse for AttributeCommand {
                     )
                 )
             };
-            let _inside_braces;
-            // We're forking to make the braces count towards the expression to
-            // make the attribute behave exactly as one would expect, that is,
-            // giving the ability to group multiple statements and a final
-            // expression as one expression.
-            let braces = braced!(_inside_braces in inside_parentheses.fork());
+            let inside_braces;
+            let braces = braced!(inside_braces in inside_parentheses);
             Self::Receiver {
                 name: custom_token::Receiver(ident.span()),
                 parentheses,
                 braces,
-                expression: inside_parentheses.parse()?,
+                expression: inside_braces.parse()?,
                 colon: inside_parentheses.parse()?,
                 ty: inside_parentheses.parse()?,
             }
@@ -381,7 +376,7 @@ pub mod custom_token {
     
     macro_rules! custom_tokens {
         ($name:ident, $string:literal) => (
-                        pub struct $name (pub Span);
+            pub struct $name (pub Span);
             impl Parse for $name {
                 #[inline]
                 fn parse(input: ParseStream) -> syn::Result<Self> {

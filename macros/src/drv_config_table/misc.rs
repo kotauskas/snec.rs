@@ -1,4 +1,5 @@
 use super::*;
+use quote::ToTokens;
 
 /// Converts an iterator over normal Rust attributes to an iterator of `SnecAttribute`s by filtering out all attributes which were not for Snec.
 #[inline]
@@ -30,13 +31,13 @@ pub fn concat_to_path(x: Ident, y: Ident) -> Path {
 
 /// Constructs an expression which points to the `::snec::EmptyReceiver` unit constructor with call-site hygeine.
 #[inline]
-pub fn default_receiver_expr() -> Expr {
+pub fn default_receiver_expr() -> TokenStream {
     let expr = ExprPath {
         attrs: Vec::new(),
         qself: None,
         path: default_receiver_path(),
     };
-    Expr::Path(expr)
+    Expr::Path(expr).into_token_stream()
 }
 /// Constructs a type which points to `::snec::EmptyReceiver` with call-site hygeine.
 pub fn default_receiver_type() -> Type {

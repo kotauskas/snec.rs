@@ -216,7 +216,9 @@ the `#[snec(entry_module_attributes(...))]` attribute can only be applied to the
                 }
                 #[inline]
                 fn get_handle(&mut self) -> ::snec::Handle<'_, #entry_path, #receiver_type> {
-                    let receiver = #receiver_expr;
+                    let receiver = {
+                        #receiver_expr
+                    };
                     ::snec::Handle::new(&mut self.#field_ident, receiver)
                 }
             }
@@ -258,6 +260,7 @@ the `#[snec(entry_module_attributes(...))]` attribute can only be applied to the
         }
         #(#impls)*
     };
+    println!("{}", &result);
     Ok(result)
 }
 
@@ -265,7 +268,7 @@ the `#[snec(entry_module_attributes(...))]` attribute can only be applied to the
 struct RequestedGetImpl {
     field_name: Ident,
     receiver_type: Type,
-    receiver_expr: Expr,
+    receiver_expr: TokenStream,
     marker_path: Path,
 }
 /// Data needed to collect from attributes to generate one marker type implementing `Entry` for one field.
